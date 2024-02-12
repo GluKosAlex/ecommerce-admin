@@ -1,10 +1,10 @@
-import { Button } from '@/components/ui/button';
+import { UserButton } from '@clerk/nextjs';
 
-export default function Home() {
+export default function RootPage() {
   return (
     <main>
       <div className='p-4'>
-        <Button variant='secondary'> click </Button>
+        <UserButton afterSignOutUrl='/'/>
       </div>
     </main>
   );
