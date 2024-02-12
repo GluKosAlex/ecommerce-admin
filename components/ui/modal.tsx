@@ -1,4 +1,6 @@
-import { FC, ReactNode } from 'react';
+'use client';
+
+import { FC, ReactNode, useState, useEffect } from 'react';
 
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogHeader } from '@/components/ui/dialog';
 
@@ -11,21 +13,30 @@ interface ModalProps {
 }
 
 const Modal: FC<ModalProps> = ({ title, description, isOpen, onClose, children }) => {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true); // To prevent Next.js Hydration errors https://nextjs.org/docs/messages/react-hydration-error
+  }, []);
+
   const onChange = (open: boolean) => {
     if (!open) {
       onClose();
     }
   };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+    isClient && (
+      <Dialog open={isOpen} onOpenChange={onChange}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{title}</DialogTitle>
+            <DialogDescription>{description}</DialogDescription>
+          </DialogHeader>
           <div>{children}</div>
-        </DialogHeader>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+    )
   );
 };
 
