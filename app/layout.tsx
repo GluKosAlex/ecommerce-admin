@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { ClerkProvider } from '@clerk/nextjs';
 import { ruRU } from '@clerk/localizations';
 
+import ModalProvider from '@/providers/modal-provider';
+
 import { Inter } from 'next/font/google';
 import './globals.css';
 
@@ -20,7 +22,10 @@ export default function RootLayout({
   return (
     <ClerkProvider localization={ruRU}>
       <html lang='ru'>
-        <body className={inter.className}>{children}</body>
+        <body className={inter.className}>
+          <ModalProvider />
+          {children}
+        </body>
       </html>
     </ClerkProvider>
   );
