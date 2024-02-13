@@ -14,11 +14,7 @@ export const metadata: Metadata = {
   description: 'Admin dashboard for e-commerce project Jou-B-Jou',
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider localization={ruRU}>
       <html lang='ru'>
