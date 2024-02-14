@@ -1,6 +1,4 @@
 import type { Metadata } from 'next';
-import { ClerkProvider } from '@clerk/nextjs';
-import { ruRU } from '@clerk/localizations';
 
 import ModalProvider from '@/providers/modal-provider';
 
@@ -16,13 +14,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider localization={ruRU}>
-      <html lang='ru'>
-        <body className={inter.className}>
-          <ModalProvider />
-          {children}
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang='ru'>
+      <body className={inter.className}>
+        <ModalProvider />
+        {children}
+      </body>
+    </html>
   );
 }

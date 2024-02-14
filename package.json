@@ -9,8 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@clerk/localizations": "^1.26.15",
-    "@clerk/nextjs": "^4.29.7",
     "@hookform/resolvers": "^3.3.4",
     "@prisma/client": "^5.9.1",
     "@radix-ui/react-dialog": "^1.0.5",
