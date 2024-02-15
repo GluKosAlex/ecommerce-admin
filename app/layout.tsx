@@ -17,10 +17,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang='ru'>
       <body className={inter.className}>
-        {/* <Providers> */}
-        <ModalProvider />
-        {children}
-        {/* </Providers> */}
+        <Providers>
+          <ModalProvider />
+          {children}
+        </Providers>
       </body>
     </html>
   );
