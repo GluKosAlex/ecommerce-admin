@@ -13,6 +13,7 @@ export const authConfig: AuthOptions = {
     YandexProvider({
       clientId: YANDEX_CLIENT_ID!,
       clientSecret: YANDEX_CLIENT_SECRET!,
+      authorization: { params: { scope: '' } },
     }),
   ],
 };
