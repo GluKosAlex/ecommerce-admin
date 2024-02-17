@@ -1,20 +1,18 @@
 import prismadb from '@/lib/prismadb';
 import { AuthOptions } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
-import GoogleProvider from 'next-auth/providers/google';
-import YandexProvider from 'next-auth/providers/yandex';
+// import GoogleProvider from 'next-auth/providers/google';
+// import YandexProvider from 'next-auth/providers/yandex';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 
-const { YANDEX_CLIENT_ID, YANDEX_CLIENT_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } = process.env;
+// const { YANDEX_CLIENT_ID, YANDEX_CLIENT_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } = process.env;
 
 export const authConfig: AuthOptions = {
   adapter: PrismaAdapter(prismadb),
-  session: {
-    strategy: 'jwt',
-  },
-  // pages: { signIn: '/sign-in' }, // custom sign-in page
+
   providers: [
     Credentials({
+      name: 'credentials',
       credentials: {
         email: { label: 'Email', type: 'email', placeholder: 'your@email.com', required: 'true' },
         password: { label: 'Password', type: 'password', required: 'true' },
@@ -34,29 +32,23 @@ export const authConfig: AuthOptions = {
       },
     }),
 
-    GoogleProvider({
-      clientId: GOOGLE_CLIENT_ID!,
-      clientSecret: GOOGLE_CLIENT_SECRET!,
-    }),
+    // GoogleProvider({
+    //   clientId: GOOGLE_CLIENT_ID!,
+    //   clientSecret: GOOGLE_CLIENT_SECRET!,
+    // }),
 
-    YandexProvider({
-      clientId: YANDEX_CLIENT_ID!,
-      clientSecret: YANDEX_CLIENT_SECRET!,
-      authorization: { params: { scope: '' } },
-    }),
+    // YandexProvider({
+    //   clientId: YANDEX_CLIENT_ID!,
+    //   clientSecret: YANDEX_CLIENT_SECRET!,
+    //   authorization: { params: { scope: '' } },
+    // }),
   ],
 
-  callbacks: {
-    async session({ token, session }) {
-      if (token) {
-        session.user.id = token.id;
-        session.user.name = token.name;
-        session.user.email = token.email;
-        session.user.image = token.picture;
-        session.user.username = token.username;
-      }
-
-      return session;
-    },
+  session: {
+    strategy: 'jwt',
   },
+
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === 'development',
+  // pages: { signIn: '/sign-in' }, // custom sign-in page
 };
