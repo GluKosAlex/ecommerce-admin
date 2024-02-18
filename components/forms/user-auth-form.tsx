@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
+import axios from 'axios';
 
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -38,15 +39,8 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   });
 
   const registerUser = async (data: UserData) => {
-    const response = await fetch('/api/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
+    const userInfo = await axios.post('/api/register', data);
 
-    const userInfo = await response.json();
     return userInfo;
   };
 
