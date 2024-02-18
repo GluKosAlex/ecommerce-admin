@@ -55,5 +55,5 @@ export const authConfig: AuthOptions = {
 
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === 'development',
-  // pages: { signIn: '/sign-in' }, // custom sign-in page
+  pages: { signIn: '/sign-in' }, // custom sign-in page
 };

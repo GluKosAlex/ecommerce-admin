@@ -38,7 +38,6 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   });
 
   const registerUser = async (data: UserData) => {
-    console.log('🚀 ~ registerUser ~ data:', data);
     const response = await fetch('/api/register', {
       method: 'POST',
       headers: {
