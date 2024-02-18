@@ -1,5 +1,6 @@
 import prismadb from '@/lib/prismadb';
 import { AuthOptions } from 'next-auth';
+import bcrypt from 'bcrypt';
 import Credentials from 'next-auth/providers/credentials';
 // import GoogleProvider from 'next-auth/providers/google';
 // import YandexProvider from 'next-auth/providers/yandex';
@@ -19,16 +20,20 @@ export const authConfig: AuthOptions = {
       },
 
       async authorize(credentials) {
+        // Check if the email and password are passed
         if (!credentials?.email || !credentials.password) return null;
 
         const { email, password } = credentials;
 
-        const user = prismadb.user.findUnique({ where: { email } });
+        // Check if the user exists
+        const user = await prismadb.user.findUnique({ where: { email } });
         if (!user) return null;
 
-        // const userPassword = user.;
+        // Check if the passwords match
+        const passwordsMatch = await bcrypt.compare(password, user.passwordHash);
+        if (!passwordsMatch) return null;
 
-        return null;
+        return user;
       },
     }),
 

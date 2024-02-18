@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -37,6 +38,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   });
 
   const registerUser = async (data: UserData) => {
+    console.log('🚀 ~ registerUser ~ data:', data);
     const response = await fetch('/api/register', {
       method: 'POST',
       headers: {
@@ -46,17 +48,36 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     });
 
     const userInfo = await response.json();
+    return userInfo;
   };
 
   const onSubmit = async (values: UserData) => {
     setIsLoading(true);
 
-    try {
-      await registerUser(values);
-      form.reset();
-    } catch (error) {
-      console.error('ОШИБКА СЕРВЕРА:', error); //TODO: Add toaster with errors
-      form.setFocus('email', { shouldSelect: true });
+    if (pathname === '/sign-up') {
+      await registerUser(values)
+        .then(() => {
+          form.reset();
+          router.push('/');
+        })
+        .catch((error) => {
+          console.error('ОШИБКА СЕРВЕРА:', error); //TODO: Add toaster with errors
+          form.setFocus('email', { shouldSelect: true });
+        });
+    }
+
+    if (pathname === '/sign-in') {
+      await signIn('credentials', { ...values, redirect: false })
+        .then((res) => {
+          if (!res?.ok) return Promise.reject(res?.status + ': Not correct email or/and password');
+
+          form.reset();
+          router.push('/');
+        })
+        .catch((error) => {
+          console.error('SERVER ERROR:', error); //TODO: Add toaster with errors
+          form.setFocus('email', { shouldSelect: true });
+        });
     }
 
     setIsLoading(false);
@@ -75,7 +96,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input type='email' placeholder='name@example.com' {...field} />
+                      <Input type='email' placeholder='name@example.com' {...field} autoComplete='email' />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -89,7 +110,12 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type='password' placeholder='' {...field} />
+                      <Input
+                        type='password'
+                        placeholder=''
+                        {...field}
+                        autoComplete={pathname === '/sign-up' ? 'new-password' : 'current-password'}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
