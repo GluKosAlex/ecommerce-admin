@@ -5,11 +5,14 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { useStoreModal } from '@/hooks/use-store-modal';
+
 import Modal from '@/components/ui/modal';
 import { Icons } from '@/components/icons';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 
 const formSchema = z.object({
   name: z.string().min(1),
@@ -27,14 +30,30 @@ export const StoreModal = () => {
     },
   });
 
+  const { toast } = useToast();
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsLoading(true);
 
       const response = await axios.post('/api/stores', values);
 
+      toast({
+        description: `${values.name} store is created.`,
+      });
+
       console.log(response.data);
     } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Uh oh! Something went wrong.',
+        description: 'There was a problem with your request.',
+        action: (
+          <ToastAction onClick={async () => await onSubmit(values)} altText='Try again'>
+            Try again
+          </ToastAction>
+        ),
+      });
       console.log(error);
     } finally {
       setIsLoading(false);

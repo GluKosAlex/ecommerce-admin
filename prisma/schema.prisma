@@ -59,8 +59,8 @@ model VerificationToken {
 }
 
 model Store {
-  id        String    @id @default(uuid())
-  name      String
+  id        String   @id @default(uuid())
+  name      String   @unique
   userId    String
   createAt  DateTime @default(now())
   updateAt  DateTime @updatedAt
