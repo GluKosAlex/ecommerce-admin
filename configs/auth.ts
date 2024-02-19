@@ -64,7 +64,7 @@ export const authConfig = {
 
     async session({ session, token }) {
       // Pass in fields to session from the token to have access with useSession and useServerSession
-      session.user.id = token.userId;
+      session.userId = token.userId;
 
       return session;
     },
