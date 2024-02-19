@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import axios from 'axios';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -15,6 +17,8 @@ const formSchema = z.object({
 export const StoreModal = () => {
   const { isOpen, onClose } = useStoreModal();
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -23,8 +27,12 @@ export const StoreModal = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+    setIsLoading(true);
+
+    const session = await axios.post('/api/stores', values);
+
     // TODO: Create Store
+    setIsLoading(false);
   };
 
   return (
