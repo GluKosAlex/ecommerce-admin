@@ -38,11 +38,7 @@ export const StoreModal = () => {
 
       const response = await axios.post('/api/stores', values);
 
-      toast({
-        description: `${values.name} store is created.`,
-      });
-
-      console.log(response.data);
+      window.location.assign(`/${response.data.id}`); // using this instead of 'redirect' for refresh window
     } catch (error) {
       toast({
         variant: 'destructive',
