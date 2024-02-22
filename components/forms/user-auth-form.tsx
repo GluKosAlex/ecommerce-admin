@@ -25,7 +25,7 @@ const formSchema = z.object({
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-type UserData = z.infer<typeof formSchema>;
+type UserFormData = z.infer<typeof formSchema>;
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -33,7 +33,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const pathname = usePathname();
   const router = useRouter();
 
-  const form = useForm<UserData>({
+  const form = useForm<UserFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: '',
@@ -43,13 +43,13 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 
   const { toast } = useToast();
 
-  const registerUser = async (data: UserData) => {
+  const registerUser = async (data: UserFormData) => {
     const userInfo = await axios.post('/api/register', data);
 
     return userInfo;
   };
 
-  const onSubmit = async (values: UserData) => {
+  const onSubmit = async (values: UserFormData) => {
     setIsLoading(true);
 
     if (pathname === '/sign-up') {

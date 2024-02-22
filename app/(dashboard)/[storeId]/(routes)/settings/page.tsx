@@ -1,4 +1,5 @@
 import { findStoreByUserIdAndId, getUserIdFromSession } from '@/utils/data-access-utils';
+import { SettingsForm } from './components/settings-form';
 
 interface SettingsPageProps {
   params: {
@@ -11,7 +12,12 @@ const SettingsPage: React.FC<SettingsPageProps> = async ({ params }) => {
 
   const store = await findStoreByUserIdAndId(params.storeId, userId);
 
-  return <div>SettingsPage</div>;
+  return (
+    <div className='flex-col'>
+      <div className='flex-1 space-y-4 p-8 pt-6'>SettingsPage</div>
+      <SettingsForm initialData={store} />
+    </div>
+  );
 };
 
 export default SettingsPage;
