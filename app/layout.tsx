@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 
+import { Toaster } from '@/components/ui/toaster';
+
 import ModalProvider from '@/providers/modal-provider';
 
 import { Inter } from 'next/font/google';
@@ -20,6 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <ModalProvider />
           {children}
+          <Toaster />
         </Providers>
       </body>
     </html>

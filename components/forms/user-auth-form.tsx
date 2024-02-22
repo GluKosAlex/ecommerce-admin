@@ -54,7 +54,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           router.push('/');
         })
         .catch((error) => {
-          console.error('ОШИБКА СЕРВЕРА:', error); //TODO: Add toaster with errors
+          console.error('SERVER ERROR:', error); //TODO: Add toaster with errors
           form.setFocus('email', { shouldSelect: true });
         });
     }

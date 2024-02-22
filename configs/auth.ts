@@ -1,14 +1,18 @@
-import prismadb from '@/lib/prismadb';
-import { AuthOptions } from 'next-auth';
-import bcrypt from 'bcrypt';
+import { getServerSession } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
-// import GoogleProvider from 'next-auth/providers/google';
 // import YandexProvider from 'next-auth/providers/yandex';
+// import GoogleProvider from 'next-auth/providers/google';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import bcrypt from 'bcrypt';
+
+import type { NextAuthOptions } from 'next-auth';
+import type { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next';
+
+import prismadb from '@/lib/prismadb';
 
 // const { YANDEX_CLIENT_ID, YANDEX_CLIENT_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } = process.env;
 
-export const authConfig: AuthOptions = {
+export const authConfig = {
   adapter: PrismaAdapter(prismadb),
 
   providers: [
@@ -49,6 +53,23 @@ export const authConfig: AuthOptions = {
     // }),
   ],
 
+  callbacks: {
+    async jwt({ token, user }) {
+      // Pass in new fields to token from user when he login first time
+      if (user) token.userId = user.id;
+      //TODO: try 'update' method via 'trigger' for updating user information
+
+      return token;
+    },
+
+    async session({ session, token }) {
+      // Pass in fields to session from the token to have access with useSession and useServerSession
+      session.userId = token.userId;
+
+      return session;
+    },
+  },
+
   session: {
     strategy: 'jwt',
   },
@@ -56,4 +77,15 @@ export const authConfig: AuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === 'development',
   pages: { signIn: '/sign-in' }, // custom sign-in page
-};
+} satisfies NextAuthOptions;
+
+// Helper function so you don't need to pass authOptions around
+// Use it in server contexts
+export function auth(
+  ...args:
+    | [GetServerSidePropsContext['req'], GetServerSidePropsContext['res']]
+    | [NextApiRequest, NextApiResponse]
+    | []
+) {
+  return getServerSession(...args, authConfig);
+}

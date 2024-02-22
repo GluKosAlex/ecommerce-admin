@@ -1,12 +1,18 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import axios from 'axios';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { useStoreModal } from '@/hooks/use-store-modal';
+
 import Modal from '@/components/ui/modal';
+import { Icons } from '@/components/icons';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 
 const formSchema = z.object({
   name: z.string().min(1),
@@ -15,6 +21,8 @@ const formSchema = z.object({
 export const StoreModal = () => {
   const { isOpen, onClose } = useStoreModal();
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -22,9 +30,30 @@ export const StoreModal = () => {
     },
   });
 
+  const { toast } = useToast();
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
-    // TODO: Create Store
+    try {
+      setIsLoading(true);
+
+      const response = await axios.post('/api/stores', values);
+
+      window.location.assign(`/${response.data.id}`); // using this instead of 'redirect' for refresh window
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Uh oh! Something went wrong.',
+        description: 'There was a problem with your request.',
+        action: (
+          <ToastAction onClick={async () => await onSubmit(values)} altText='Try again'>
+            Try again
+          </ToastAction>
+        ),
+      });
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -45,17 +74,19 @@ export const StoreModal = () => {
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input placeholder='E-Commerce' {...field} />
+                      <Input placeholder='E-Commerce' disabled={isLoading} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <div className='pt-6 space-x-2 flex items-center justify-end w-full'>
-                <Button variant='outline' onClick={onClose}>
-                  Cancel
+                <Button variant='outline' onClick={onClose} disabled={isLoading}>
+                  {isLoading ? <Icons.spinner className='mr-2 h-4 w-4 animate-spin' /> : 'Cancel'}
                 </Button>
-                <Button type='submit'>Continue</Button>
+                <Button type='submit' disabled={isLoading}>
+                  {isLoading ? <Icons.spinner className='mr-2 h-4 w-4 animate-spin' /> : 'Continue'}
+                </Button>
               </div>
             </form>
           </Form>
