@@ -54,22 +54,32 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 
     if (pathname === '/sign-up') {
       await registerUser(values)
-        .then(() => {
+        .then((res) => {
+          console.log(res);
+
           form.reset();
           router.push('/sign-in');
         })
         .catch((error) => {
-          console.error('SERVER ERROR:', error);
-          toast({
-            variant: 'destructive',
-            title: 'Uh oh! Something went wrong.',
-            description: 'There was a problem with your request.',
-            action: (
-              <ToastAction onClick={async () => await onSubmit(values)} altText='Try again'>
-                Try again
-              </ToastAction>
-            ),
-          });
+          console.error('SERVER ERROR:', error.response);
+          if (!error.response.data) {
+            toast({
+              variant: 'destructive',
+              title: 'Uh oh! Something went wrong.',
+              description: 'There was a problem with your request.',
+              action: (
+                <ToastAction onClick={async () => await onSubmit(values)} altText='Try again'>
+                  Try again
+                </ToastAction>
+              ),
+            });
+          } else {
+            toast({
+              variant: 'destructive',
+              title: 'Uh oh! Something went wrong.',
+              description: error.response.data,
+            });
+          }
 
           form.setFocus('email', { shouldSelect: true });
         });
