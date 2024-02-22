@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Icons } from '@/components/icons';
 import { useToast } from '@/components/ui/use-toast';
 import { ToastAction } from '@/components/ui/toast';
+import { AlertModal } from '@/components/modals/alert-modal';
 
 interface SettingsFormProps {
   initialData: Store;
@@ -74,8 +75,30 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
     }
   };
 
+  const onDelete = async () => {
+    try {
+      setIsLoading(true);
+      await axios.delete(`/api/stores/${params.storeId}`);
+      router.refresh();
+      router.push('/');
+      toast({
+        variant: 'default',
+        title: 'Store deleted',
+      });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Make sure you removed all products and categories first.',
+      });
+    } finally {
+      setOpen(false);
+      setIsLoading(false);
+    }
+  };
+
   return (
     <>
+      <AlertModal isOpen={open} onClose={() => setOpen(false)} onConfirm={onDelete} loading={isLoading} />
       <div className='flex items-center justify-between'>
         <Heading title='Settings' description='Manage your store settings.' />
         <Button variant='destructive' size='icon' onClick={() => setOpen(true)} disabled={isLoading}>
