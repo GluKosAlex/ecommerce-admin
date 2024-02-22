@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/configs/auth';
 
 import prismadb from '@/lib/prismadb';
-import { json } from 'stream/consumers';
 
 export async function POST(req: Request) {
   try {

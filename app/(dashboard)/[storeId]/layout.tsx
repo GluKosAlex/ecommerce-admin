@@ -1,8 +1,5 @@
-import { redirect } from 'next/navigation';
-
-import prismadb from '@/lib/prismadb';
 import Navbar from '@/components/navbar';
-import { getUserIdFromSession } from '@/utils/get-session-data';
+import { findStoreByUserIdAndId, getUserIdFromSession } from '@/utils/data-access-utils';
 
 const DashboardLayout = async ({
   children,
@@ -13,16 +10,7 @@ const DashboardLayout = async ({
 }) => {
   const userId = await getUserIdFromSession();
 
-  const store = await prismadb.store.findFirst({
-    where: {
-      id: params.storeId,
-      userId,
-    },
-  });
-
-  if (!store) {
-    redirect('/');
-  }
+  const store = await findStoreByUserIdAndId(params.storeId, userId);
 
   return (
     <>

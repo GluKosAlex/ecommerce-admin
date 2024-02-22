@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 
 import prismadb from '@/lib/prismadb';
-import { getUserIdFromSession } from '@/utils/get-session-data';
+import { getUserIdFromSession } from '@/utils/data-access-utils';
 
 const SetupLayout = async ({
   children,

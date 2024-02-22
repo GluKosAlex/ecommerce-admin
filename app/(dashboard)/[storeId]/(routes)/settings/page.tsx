@@ -1,5 +1,4 @@
-import prismadb from '@/lib/prismadb';
-import { getUserIdFromSession } from '@/utils/get-session-data';
+import { findStoreByUserIdAndId, getUserIdFromSession } from '@/utils/data-access-utils';
 
 interface SettingsPageProps {
   params: {
@@ -10,12 +9,7 @@ interface SettingsPageProps {
 const SettingsPage: React.FC<SettingsPageProps> = async ({ params }) => {
   const userId = await getUserIdFromSession();
 
-  const store = prismadb.store.findFirst({
-    where: {
-      id: params.storeId,
-      userId,
-    },
-  });
+  const store = await findStoreByUserIdAndId(params.storeId, userId);
 
   return <div>SettingsPage</div>;
 };

@@ -1,8 +1,8 @@
-import { getUserIdFromSession } from '@/utils/get-session-data';
 import prismadb from '@/lib/prismadb';
 import UserButton from '@/components/user-button';
 import MainNav from '@/components/main-nav';
 import StoreSwitcher from '@/components/store-switcher';
+import { getUserIdFromSession } from '@/utils/data-access-utils';
 
 export default async function Navbar({}) {
   const userId = await getUserIdFromSession();
