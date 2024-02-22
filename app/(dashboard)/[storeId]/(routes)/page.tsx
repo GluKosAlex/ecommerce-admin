@@ -6,8 +6,9 @@ const DashboardPage = async (params: { storeId: string }) => {
       id: params.storeId,
     },
   });
+  console.log(store?.id);
 
-  return <div>Active store: {store?.name}</div>;
+  return <div>Active storew: {store?.id}</div>;
 };
 
 export default DashboardPage;
