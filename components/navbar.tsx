@@ -1,19 +1,11 @@
-import { redirect } from 'next/navigation';
-
+import { getUserIdFromSession } from '@/utils/get-session-data';
 import prismadb from '@/lib/prismadb';
 import UserButton from '@/components/user-button';
 import MainNav from '@/components/main-nav';
 import StoreSwitcher from '@/components/store-switcher';
-import { auth } from '@/configs/auth';
 
 export default async function Navbar({}) {
-  const session = await auth();
-
-  if (!session || !session.userId) {
-    redirect('/sign-in');
-  }
-
-  const { userId } = session;
+  const userId = await getUserIdFromSession();
 
   const stores = await prismadb.store.findMany({
     where: {
