@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Trash2 } from 'lucide-react';
+import axios from 'axios';
+import { useParams, useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Store } from '@prisma/client';
 
@@ -13,6 +15,8 @@ import { Separator } from '@/components/ui/separator';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Icons } from '@/components/icons';
+import { useToast } from '@/components/ui/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 
 interface SettingsFormProps {
   initialData: Store;
@@ -25,6 +29,9 @@ const formSchema = z.object({
 type SettingsFormData = z.infer<typeof formSchema>;
 
 export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
+  const params = useParams();
+  const router = useRouter();
+
   const [open, setOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -33,11 +40,40 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
     defaultValues: { name: initialData.name },
   });
 
+  const { toast } = useToast();
+
   const onSubmit = async (data: SettingsFormData) => {
-    setIsLoading(true);
-    console.log(data);
-    setIsLoading(false);
+    try {
+      if (data.name === initialData.name) {
+        toast({
+          variant: 'destructive',
+          title: 'The name has to be different from the current name',
+        });
+        return;
+      }
+      setIsLoading(true);
+      await axios.patch(`/api/stores/${params.storeId}`, data);
+      router.refresh(); // Refresh the page to reflect the changes in the database
+      toast({
+        variant: 'default',
+        title: 'Store updated',
+      });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Uh oh! Something went wrong.',
+        description: 'There was a problem with your request.',
+        action: (
+          <ToastAction onClick={async () => await onSubmit(data)} altText='Try again'>
+            Try again
+          </ToastAction>
+        ),
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
+
   return (
     <>
       <div className='flex items-center justify-between'>
