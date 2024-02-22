@@ -1,4 +1,5 @@
 'use client';
+
 import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
@@ -12,6 +13,8 @@ import { cn } from '@/lib/utils';
 import { Icons } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/components/ui/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
@@ -38,6 +41,8 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     },
   });
 
+  const { toast } = useToast();
+
   const registerUser = async (data: UserData) => {
     const userInfo = await axios.post('/api/register', data);
 
@@ -51,10 +56,21 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       await registerUser(values)
         .then(() => {
           form.reset();
-          router.push('/');
+          router.push('/sign-in');
         })
         .catch((error) => {
-          console.error('SERVER ERROR:', error); //TODO: Add toaster with errors
+          console.error('SERVER ERROR:', error);
+          toast({
+            variant: 'destructive',
+            title: 'Uh oh! Something went wrong.',
+            description: 'There was a problem with your request.',
+            action: (
+              <ToastAction onClick={async () => await onSubmit(values)} altText='Try again'>
+                Try again
+              </ToastAction>
+            ),
+          });
+
           form.setFocus('email', { shouldSelect: true });
         });
     }
@@ -68,7 +84,18 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           router.push('/');
         })
         .catch((error) => {
-          console.error('SERVER ERROR:', error); //TODO: Add toaster with errors
+          console.error('SERVER ERROR:', error);
+          toast({
+            variant: 'destructive',
+            title: 'Uh oh! Something went wrong.',
+            description: 'There was a problem with your request.',
+            action: (
+              <ToastAction onClick={async () => await onSubmit(values)} altText='Try again'>
+                Try again
+              </ToastAction>
+            ),
+          });
+
           form.setFocus('email', { shouldSelect: true });
         });
     }
