@@ -59,9 +59,22 @@ model VerificationToken {
 }
 
 model Store {
-  id        String   @id @default(uuid())
-  name      String   @unique
+  id        String      @id @default(uuid())
+  name      String      @unique
   userId    String
+  billboard Billboard[] @relation("StoreToBillboard")
+  createAt  DateTime    @default(now())
+  updateAt  DateTime    @updatedAt
+}
+
+model Billboard {
+  id        String   @id @default(uuid())
+  storeId   String
+  store     Store    @relation("StoreToBillboard", fields: [storeId], references: [id])
+  label     String
+  imageUrl  String
   createAt  DateTime @default(now())
   updateAt  DateTime @updatedAt
+
+  @@index([storeId])
 }
