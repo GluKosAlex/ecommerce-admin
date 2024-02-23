@@ -7,7 +7,7 @@ import { Trash2 } from 'lucide-react';
 import axios from 'axios';
 import { useParams, useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Store } from '@prisma/client';
+import { Billboard } from '@prisma/client';
 
 import { Button } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
@@ -22,16 +22,17 @@ import ApiAlert from '@/components/ui/api-alert';
 import { useOrigin } from '@/hooks/use-origin';
 
 const formSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  label: z.string().min(1, 'Name is required'),
+  imageUrl: z.string().min(1, 'Url is required'),
 });
 
-type SettingsFormData = z.infer<typeof formSchema>;
+type BillboardFormData = z.infer<typeof formSchema>;
 
-interface SettingsFormProps {
-  initialData: Store;
+interface BillboardFormProps {
+  initialData: Billboard | null;
 }
 
-export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
+export const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => {
   const params = useParams();
   const router = useRouter();
   const origin = useOrigin();
@@ -39,19 +40,27 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const form = useForm<SettingsFormData>({
+  const title = initialData ? 'Edit billboard' : 'Create billboard';
+  const description = initialData ? 'Update your billboard.' : 'Create a new billboard.';
+  const toastMessage = initialData ? 'Billboard updated' : 'Billboard created';
+  const action = initialData ? 'Update' : 'Create';
+
+  const form = useForm<BillboardFormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: initialData.name },
+    defaultValues: initialData || {
+      label: '',
+      imageUrl: '',
+    },
   });
 
   const { toast } = useToast();
 
-  const onSubmit = async (data: SettingsFormData) => {
+  const onSubmit = async (data: BillboardFormData) => {
     try {
-      if (data.name === initialData.name) {
+      if (data.label === initialData?.label && data.imageUrl === initialData?.imageUrl) {
         toast({
           variant: 'destructive',
-          title: 'The name has to be different from the current name',
+          title: 'You need to change at least one field',
         });
         return;
       }
@@ -103,10 +112,12 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
     <>
       <AlertModal isOpen={open} onClose={() => setOpen(false)} onConfirm={onDelete} loading={isLoading} />
       <div className='flex items-center justify-between'>
-        <Heading title='Settings' description='Manage your store settings.' />
-        <Button variant='destructive' size='icon' onClick={() => setOpen(true)} disabled={isLoading}>
-          <Trash2 className='size-4' />
-        </Button>
+        <Heading title={title} description={description} />
+        {initialData && ( // Only show delete button if there is an initialData
+          <Button variant='destructive' size='icon' onClick={() => setOpen(true)} disabled={isLoading}>
+            <Trash2 className='size-4' />
+          </Button>
+        )}
       </div>
       <Separator className='my-2' />
 
@@ -115,12 +126,12 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
           <fieldset className='grid grid-cols-3 gap-8'>
             <FormField
               control={form.control}
-              name='name'
+              name='label'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Label</FormLabel>
                   <FormControl>
-                    <Input placeholder='Store name' disabled={isLoading} {...field} />
+                    <Input placeholder='Billboard label' disabled={isLoading} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -128,16 +139,11 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
             />
           </fieldset>
           <Button type='submit' disabled={isLoading} className='min-w-[150px] ml-auto'>
-            {isLoading ? <Icons.spinner className='h-4 w-4 animate-spin' /> : 'Save changes'}
+            {isLoading ? <Icons.spinner className='h-4 w-4 animate-spin' /> : action}
           </Button>
         </form>
       </Form>
       <Separator />
-      <ApiAlert
-        title='NEXT_PUBLIC_API_URL'
-        description={`${origin}/api/${params.storeId}`}
-        variant='public'
-      />
     </>
   );
 };
