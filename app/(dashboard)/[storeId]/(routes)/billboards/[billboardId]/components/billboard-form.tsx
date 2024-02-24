@@ -18,8 +18,8 @@ import { Icons } from '@/components/icons';
 import { useToast } from '@/components/ui/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { AlertModal } from '@/components/modals/alert-modal';
-import ApiAlert from '@/components/ui/api-alert';
 import { useOrigin } from '@/hooks/use-origin';
+import ImageUpload from '@/components/ui/image-upload';
 
 const formSchema = z.object({
   label: z.string().min(1, 'Name is required'),
@@ -123,6 +123,24 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => 
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8 w-full'>
+          <FormField
+            control={form.control}
+            name='imageUrl'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Background image</FormLabel>
+                <FormControl>
+                  <ImageUpload
+                    onChange={(url) => field.onChange(url)}
+                    onRemove={() => field.onChange('')}
+                    value={field.value ? [field.value] : []}
+                    disabled={isLoading}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <fieldset className='grid grid-cols-3 gap-8'>
             <FormField
               control={form.control}
