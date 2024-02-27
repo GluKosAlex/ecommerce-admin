@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
-import axios from 'axios';
 import { ImagePlus, Trash } from 'lucide-react';
 import { DropzoneProps, FileRejection } from 'react-dropzone';
 
@@ -16,6 +15,8 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import DropZone from '@/components/ui/drop-zone';
+import { CustomFile } from '@/types/react-dropzone';
+import { uploadBillboardImage } from '@/app/(dashboard)/[storeId]/(routes)/billboards/[billboardId]/_actions';
 
 interface ImageUploadProps {
   onChange: (value: string) => void;
@@ -28,36 +29,43 @@ const ImageUpload = ({ onChange, onRemove, value, disabled }: ImageUploadProps) 
   const [isClient, setIsClient] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
+  const [files, setFiles] = useState<File[]>([]);
+  const [rejected, setRejected] = useState<FileRejection[]>([]);
+
   useEffect(() => {
     setIsClient(true); // To prevent Next.js Hydration errors https://nextjs.org/docs/messages/react-hydration-error
   }, []);
 
   const onDrop: DropzoneProps['onDrop'] = useCallback(
-    (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
-      // Do something with the files
-      console.log(acceptedFiles);
-      console.log(rejectedFiles);
+    (acceptedFiles: CustomFile[], rejectedFiles: FileRejection[]) => {
+      if (acceptedFiles?.length > 0) {
+        setFiles([
+          ...acceptedFiles.map((file) => Object.assign(file, { preview: URL.createObjectURL(file) })),
+        ]); // Add preview URLs
+
+        const formData = new FormData();
+
+        formData.append('image', acceptedFiles[0]);
+        uploadBillboardImage(formData)
+          .then((path) => {
+            onChange(path);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+
+        setRejected([]);
+
+        // acceptedFiles.forEach((file) => URL.revokeObjectURL(file.preview || '')); // Clean up preview URLs
+        setIsOpen(false);
+      }
+
+      if (rejectedFiles?.length > 0) {
+        setRejected(rejectedFiles);
+      }
     },
     []
   );
-
-  const onUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    onChange(file.name);
-
-    const formData = new FormData();
-    formData.append('file', file);
-    axios
-      .post('/api/upload', formData)
-      .then((response) => {
-        onChange(response.data.url);
-      })
-      .catch((error) => {
-        console.error('Error uploading image:', error);
-      });
-  };
 
   return !isClient ? null : (
     <>
@@ -67,7 +75,6 @@ const ImageUpload = ({ onChange, onRemove, value, disabled }: ImageUploadProps) 
             <div
               key={url}
               className='relative w-[200px] h-[200px] overflow-hidden rounded-md bg-zinc-100 dark:bg-zinc-800'
-              onClick={() => onRemove(url)}
             >
               <div className='z-10 absolute top-2 right-2 cursor-pointer'>
                 <Button type='button' onClick={() => onRemove(url)} variant='destructive' size='icon'>
@@ -79,7 +86,8 @@ const ImageUpload = ({ onChange, onRemove, value, disabled }: ImageUploadProps) 
           ))}
         </div>
       </div>
-      <Dialog>
+
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
           <Button type='button' variant='secondary' disabled={disabled}>
             <ImagePlus className='h-4 w-4 mr-2'></ImagePlus> Upload image

@@ -3,12 +3,21 @@
 import { Upload } from 'lucide-react';
 import { DropzoneProps, useDropzone } from 'react-dropzone';
 
-interface DropZoneProps extends DropzoneProps {
+interface IDropZoneProps extends DropzoneProps {
   onDrop: DropzoneProps['onDrop'];
 }
 
-const DropZone: React.FC<DropZoneProps> = ({ onDrop }) => {
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+const DropZone: React.FC<IDropZoneProps> = ({ onDrop }) => {
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    multiple: false,
+    accept: {
+      'image/jpeg': ['.jpg', '.jpeg'],
+      'image/png': ['.png'],
+    },
+    maxFiles: 1,
+    maxSize: 5 * 1024 * 1024,
+  });
 
   return (
     <div
@@ -24,11 +33,7 @@ const DropZone: React.FC<DropZoneProps> = ({ onDrop }) => {
           'aria-describedby': 'file-upload-button',
         })}
       />
-      <Upload
-        size={150}
-        strokeWidth={3}
-        className={`text-gray-${isDragActive ? '200' : '100'} absolute z-0`}
-      />
+      <Upload size={150} strokeWidth={3} className='text-gray-100 absolute z-0' />
       {isDragActive ? (
         <p className='text-gray-500 z-1 relative'>Drop the files here ...</p>
       ) : (
