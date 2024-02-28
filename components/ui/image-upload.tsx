@@ -15,12 +15,11 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import DropZone from '@/components/ui/drop-zone';
-import { CustomFile } from '@/types/react-dropzone';
-import { uploadBillboardImage } from '@/app/(dashboard)/[storeId]/(routes)/billboards/[billboardId]/_actions';
+import { useBillboardSelectedImage } from '@/hooks/use-billboard-select-image';
 
 interface ImageUploadProps {
   onChange: (value: string) => void;
-  onRemove: (value: string) => void;
+  onRemove: () => void;
   value: string[];
   disabled?: boolean;
 }
@@ -29,6 +28,8 @@ const ImageUpload = ({ onChange, onRemove, value, disabled }: ImageUploadProps) 
   const [isClient, setIsClient] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
+  const { onSelectImage } = useBillboardSelectedImage();
+
   const [files, setFiles] = useState<File[]>([]);
   const [rejected, setRejected] = useState<FileRejection[]>([]);
 
@@ -36,27 +37,21 @@ const ImageUpload = ({ onChange, onRemove, value, disabled }: ImageUploadProps) 
     setIsClient(true); // To prevent Next.js Hydration errors https://nextjs.org/docs/messages/react-hydration-error
   }, []);
 
+  useEffect(() => {
+    if (files[0]) onChange(URL.createObjectURL(files[0]));
+  }, [files, onChange]);
+
   const onDrop: DropzoneProps['onDrop'] = useCallback(
-    (acceptedFiles: CustomFile[], rejectedFiles: FileRejection[]) => {
+    (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
       if (acceptedFiles?.length > 0) {
-        setFiles([
-          ...acceptedFiles.map((file) => Object.assign(file, { preview: URL.createObjectURL(file) })),
-        ]); // Add preview URLs
+        setFiles([...acceptedFiles]);
 
         const formData = new FormData();
-
         formData.append('image', acceptedFiles[0]);
-        uploadBillboardImage(formData)
-          .then((path) => {
-            onChange(path);
-          })
-          .catch((error) => {
-            console.error(error);
-          });
+        onSelectImage(formData);
 
         setRejected([]);
 
-        // acceptedFiles.forEach((file) => URL.revokeObjectURL(file.preview || '')); // Clean up preview URLs
         setIsOpen(false);
       }
 
@@ -77,7 +72,7 @@ const ImageUpload = ({ onChange, onRemove, value, disabled }: ImageUploadProps) 
               className='relative w-[200px] h-[200px] overflow-hidden rounded-md bg-zinc-100 dark:bg-zinc-800'
             >
               <div className='z-10 absolute top-2 right-2 cursor-pointer'>
-                <Button type='button' onClick={() => onRemove(url)} variant='destructive' size='icon'>
+                <Button type='button' onClick={() => onRemove()} variant='destructive' size='icon'>
                   <Trash className='h-4 w-4' />
                 </Button>
               </div>

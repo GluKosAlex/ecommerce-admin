@@ -20,6 +20,8 @@ import { ToastAction } from '@/components/ui/toast';
 import { AlertModal } from '@/components/modals/alert-modal';
 import { useOrigin } from '@/hooks/use-origin';
 import ImageUpload from '@/components/ui/image-upload';
+import { uploadBillboardImage } from '@/app/(dashboard)/[storeId]/(routes)/billboards/[billboardId]/_actions';
+import { useBillboardSelectedImage } from '@/hooks/use-billboard-select-image';
 
 const formSchema = z.object({
   label: z.string().min(1, 'Name is required'),
@@ -36,6 +38,8 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => 
   const params = useParams();
   const router = useRouter();
   const origin = useOrigin();
+
+  const { selectedImage } = useBillboardSelectedImage();
 
   const [open, setOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -65,6 +69,7 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => 
         return;
       }
       setIsLoading(true);
+
       await axios.patch(`/api/stores/${params.storeId}`, data);
       router.refresh(); // Refresh the page to reflect the changes in the database
       toast({
@@ -131,8 +136,17 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => 
                 <FormLabel>Background image</FormLabel>
                 <FormControl>
                   <ImageUpload
-                    onChange={(url) => field.onChange(url)}
-                    onRemove={() => field.onChange('')}
+                    onChange={(url) => {
+                      field.onChange(url);
+                      uploadBillboardImage(selectedImage)
+                        .then((path) => {})
+                        .catch((error) => {
+                          console.error(error);
+                        });
+                    }}
+                    onRemove={() => {
+                      field.onChange('');
+                    }}
                     value={field.value ? [field.value] : []}
                     disabled={isLoading}
                   />
