@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Trash2 } from 'lucide-react';
@@ -20,12 +20,11 @@ import { ToastAction } from '@/components/ui/toast';
 import { AlertModal } from '@/components/modals/alert-modal';
 import { useOrigin } from '@/hooks/use-origin';
 import ImageUpload from '@/components/ui/image-upload';
-import { uploadBillboardImage } from '@/app/(dashboard)/[storeId]/(routes)/billboards/[billboardId]/_actions';
-import { useBillboardSelectedImage } from '@/hooks/use-billboard-select-image';
+import { getBillboardImage } from '@/app/api/actions/_actions';
 
 const formSchema = z.object({
   label: z.string().min(1, 'Name is required'),
-  imageUrl: z.string().min(1, 'Url is required'),
+  images: z.instanceof(File).array().min(1, 'Please select an image'),
 });
 
 type BillboardFormData = z.infer<typeof formSchema>;
@@ -39,8 +38,6 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => 
   const router = useRouter();
   const origin = useOrigin();
 
-  const { selectedImage } = useBillboardSelectedImage();
-
   const [open, setOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -53,15 +50,32 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => 
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
       label: '',
-      imageUrl: '',
+      images: [],
     },
   });
 
+  const {
+    formState: { isDirty },
+  } = form;
+
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (initialData) {
+      getBillboardImage(initialData.imageUrl)
+        .then((formData) => {
+          const blob = new Blob([formData.image.value], { type: formData.image.options.contentType });
+          form.setValue('images', [image]);
+        })
+        .catch((error) => {
+          console.error('Error loading billboard image:', error);
+        });
+    }
+  }, []);
 
   const onSubmit = async (data: BillboardFormData) => {
     try {
-      if (data.label === initialData?.label && data.imageUrl === initialData?.imageUrl) {
+      if (!isDirty) {
         toast({
           variant: 'destructive',
           title: 'You need to change at least one field',
@@ -70,11 +84,22 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => 
       }
       setIsLoading(true);
 
-      await axios.patch(`/api/stores/${params.storeId}`, data);
+      const formData = new FormData();
+      formData.append('image', data.images[0]);
+      formData.append('label', data.label);
+
+      if (initialData) {
+        // Update existing billboard if initialData is defined
+        await axios.patch(`/api/${params.storeId}/billboards/${params.billboardId}`, formData);
+      } else {
+        // Create new billboard
+        await axios.post(`/api/${params.storeId}/billboards`, formData);
+      }
+
       router.refresh(); // Refresh the page to reflect the changes in the database
       toast({
         variant: 'default',
-        title: 'Store updated',
+        title: toastMessage,
       });
     } catch (error) {
       toast({
@@ -95,20 +120,20 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => 
   const onDelete = async () => {
     try {
       setIsLoading(true);
-      await axios.delete(`/api/stores/${params.storeId}`);
+      await axios.delete(`/api/${params.storeId}/billboards/${params.billboardId}`);
       router.refresh();
       router.push('/');
       toast({
         variant: 'default',
-        title: 'Store deleted',
+        title: 'Billboard deleted',
       });
     } catch (error) {
       toast({
         variant: 'destructive',
-        title: 'Make sure you removed all products and categories first.',
+        title: 'Make sure you removed all categories using this billboard first.',
       });
     } finally {
-      setOpen(false);
+      setOpen(false); // Close the modal
       setIsLoading(false);
     }
   };
@@ -130,24 +155,19 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => 
         <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8 w-full'>
           <FormField
             control={form.control}
-            name='imageUrl'
+            name='images'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Background image</FormLabel>
                 <FormControl>
                   <ImageUpload
-                    onChange={(url) => {
-                      field.onChange(url);
-                      uploadBillboardImage(selectedImage)
-                        .then((path) => {})
-                        .catch((error) => {
-                          console.error(error);
-                        });
+                    onChange={(images) => {
+                      field.onChange(images);
                     }}
                     onRemove={() => {
-                      field.onChange('');
+                      field.onChange([]);
                     }}
-                    value={field.value ? [field.value] : []}
+                    value={field.value ? field.value : []}
                     disabled={isLoading}
                   />
                 </FormControl>
