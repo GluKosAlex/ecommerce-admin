@@ -24,7 +24,7 @@ import { getBillboardImage } from '@/app/api/actions/_actions';
 
 const formSchema = z.object({
   label: z.string().min(1, 'Name is required'),
-  images: z.instanceof(File).array().min(1, 'Please select an image'),
+  imageUrl: z.string().min(1, 'Please select an image'),
 });
 
 type BillboardFormData = z.infer<typeof formSchema>;
@@ -50,7 +50,7 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => 
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
       label: '',
-      images: [],
+      imageUrl: '',
     },
   });
 
@@ -60,18 +60,18 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => 
 
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (initialData) {
-      getBillboardImage(initialData.imageUrl)
-        .then((formData) => {
-          const blob = new Blob([formData.image.value], { type: formData.image.options.contentType });
-          form.setValue('images', [image]);
-        })
-        .catch((error) => {
-          console.error('Error loading billboard image:', error);
-        });
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (initialData) {
+  //     getBillboardImage(initialData.imageUrl)
+  //       .then((formData) => {
+  //         const blob = new Blob([formData.image.value], { type: formData.image.options.contentType });
+  //         form.setValue('images', [image]);
+  //       })
+  //       .catch((error) => {
+  //         console.error('Error loading billboard image:', error);
+  //       });
+  //   }
+  // }, []);
 
   const onSubmit = async (data: BillboardFormData) => {
     try {
@@ -155,7 +155,7 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => 
         <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8 w-full'>
           <FormField
             control={form.control}
-            name='images'
+            name='imageUrl'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Background image</FormLabel>
@@ -167,7 +167,7 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => 
                     onRemove={() => {
                       field.onChange([]);
                     }}
-                    value={field.value ? field.value : []}
+                    value={field.value ? [field.value] : []}
                     disabled={isLoading}
                   />
                 </FormControl>

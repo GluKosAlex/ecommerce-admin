@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { ImagePlus, Trash } from 'lucide-react';
 import { DropzoneProps, FileRejection } from 'react-dropzone';
 
+import { useSelectedImages } from '@/hooks/use-select-image';
+
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -17,15 +19,17 @@ import {
 import DropZone from '@/components/ui/drop-zone';
 
 interface ImageUploadProps {
-  onChange: (value: File[]) => void;
-  onRemove: (value: File) => void;
-  value: File[];
+  onChange: (value: string[]) => void;
+  onRemove: (value: string) => void;
+  value: string[];
   disabled?: boolean;
 }
 
 const ImageUpload = ({ onChange, onRemove, value, disabled }: ImageUploadProps) => {
   const [isClient, setIsClient] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+
+  const { onSelectImages } = useSelectedImages();
 
   useEffect(() => {
     setIsClient(true); // To prevent Next.js Hydration errors https://nextjs.org/docs/messages/react-hydration-error
@@ -34,7 +38,13 @@ const ImageUpload = ({ onChange, onRemove, value, disabled }: ImageUploadProps) 
   const onDrop: DropzoneProps['onDrop'] = useCallback(
     (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
       if (acceptedFiles?.length > 0) {
-        onChange(acceptedFiles);
+        if (value.length > 0) {
+          onSelectImages(acceptedFiles);
+
+          onChange([...value, ...acceptedFiles.map((file) => URL.createObjectURL(file))]);
+        } else {
+          onChange([...acceptedFiles.map((file) => URL.createObjectURL(file))]);
+        }
 
         setIsOpen(false);
       }
@@ -42,30 +52,25 @@ const ImageUpload = ({ onChange, onRemove, value, disabled }: ImageUploadProps) 
       if (rejectedFiles?.length > 0) {
       }
     },
-    []
+    [onChange, value]
   );
 
   return !isClient ? null : (
     <>
       <div>
         <div className='mb-4 flex items-center gap-4'>
-          {value.map((file) => {
+          {value.map((url) => {
             return (
               <div
-                key={file.name}
+                key={url}
                 className='relative w-[200px] h-[200px] overflow-hidden rounded-md bg-zinc-100 dark:bg-zinc-800'
               >
                 <div className='z-10 absolute top-2 right-2 cursor-pointer'>
-                  <Button type='button' onClick={() => onRemove(file)} variant='destructive' size='icon'>
+                  <Button type='button' onClick={() => onRemove(url)} variant='destructive' size='icon'>
                     <Trash className='h-4 w-4' />
                   </Button>
                 </div>
-                <Image
-                  src={file.name ? URL.createObjectURL(file) : ''}
-                  alt='Uploaded image'
-                  fill
-                  className='h-full w-full object-cover'
-                />
+                <Image src={url} alt='Uploaded image' fill className='h-full w-full object-cover' />
               </div>
             );
           })}
