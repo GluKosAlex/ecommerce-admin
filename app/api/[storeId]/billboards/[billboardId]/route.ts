@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/configs/auth';
 
 import prismadb from '@/lib/prismadb';
-import { deleteBillboardImage, uploadBillboardImage } from './../../../actions/_actions';
+import { deleteBillboardImage } from './../../../actions/_actions';
 
 export async function GET(_request: Request, { params }: { params: { billboardId: string } }) {
   //_request is not used but is required because the 'params' must be passed to the function as second argument. '_' is used to indicate that the parameter is not used, it is just a placeholder
@@ -32,9 +32,7 @@ export async function PATCH(
 ) {
   try {
     const session = await auth();
-    const data = await request.formData();
-    const label = data.get('label') as string;
-    const image = data.get('image') as File;
+    const { label, imageUrl } = await request.json();
 
     if (!session || !session.userId) {
       return new NextResponse('Unauthenticated', { status: 401 });
@@ -44,16 +42,8 @@ export async function PATCH(
       return new NextResponse('Label is required', { status: 400 });
     }
 
-    if (!image) {
+    if (!imageUrl) {
       return new NextResponse('Image is required', { status: 400 });
-    }
-
-    if (image.type !== 'image/jpeg' && image.type !== 'image/png') {
-      return new NextResponse('Invalid image type', { status: 400 });
-    }
-
-    if (image.size > 5 * 1024 * 1024) {
-      return new NextResponse('Image is too large', { status: 400 });
     }
 
     if (!params.billboardId) {
@@ -71,9 +61,6 @@ export async function PATCH(
       return new NextResponse('Unauthorized', { status: 403 });
     } // Check if user has permission to access this store
 
-    const formData = new FormData();
-    formData.append('image', image);
-
     const currentImageUrl = await prismadb.billboard.findUnique({
       where: {
         id: params.billboardId,
@@ -82,14 +69,10 @@ export async function PATCH(
         imageUrl: true,
       },
     }); // Get the current image URL for the billboard
-    console.log('🚀 ~ currentImageUrl:', currentImageUrl);
 
     if (currentImageUrl?.imageUrl) {
       await deleteBillboardImage(currentImageUrl.imageUrl);
     } // Delete the current image file if it exists
-
-    const newImageUrl = await uploadBillboardImage(formData, params.storeId); // Upload the new image file and get the new image URL
-    console.log('🚀 ~ BILLBOARDS_POST ~ imageUrl:', newImageUrl);
 
     const billboard = await prismadb.billboard.updateMany({
       where: {
@@ -97,7 +80,7 @@ export async function PATCH(
       },
       data: {
         label,
-        imageUrl: newImageUrl,
+        imageUrl,
       },
     }); // Update the billboard
 

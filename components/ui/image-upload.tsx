@@ -19,7 +19,7 @@ import {
 import DropZone from '@/components/ui/drop-zone';
 
 interface ImageUploadProps {
-  onChange: (value: string[]) => void;
+  onChange: (value: string) => void;
   onRemove: (value: string) => void;
   value: string[];
   disabled?: boolean;
@@ -38,13 +38,9 @@ const ImageUpload = ({ onChange, onRemove, value, disabled }: ImageUploadProps) 
   const onDrop: DropzoneProps['onDrop'] = useCallback(
     (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
       if (acceptedFiles?.length > 0) {
-        if (value.length > 0) {
-          onSelectImages(acceptedFiles);
+        onSelectImages(acceptedFiles);
 
-          onChange([...value, ...acceptedFiles.map((file) => URL.createObjectURL(file))]);
-        } else {
-          onChange([...acceptedFiles.map((file) => URL.createObjectURL(file))]);
-        }
+        onChange(URL.createObjectURL(acceptedFiles[0]));
 
         setIsOpen(false);
       }
@@ -52,7 +48,7 @@ const ImageUpload = ({ onChange, onRemove, value, disabled }: ImageUploadProps) 
       if (rejectedFiles?.length > 0) {
       }
     },
-    [onChange, value]
+    [onChange, onSelectImages]
   );
 
   return !isClient ? null : (
@@ -60,6 +56,8 @@ const ImageUpload = ({ onChange, onRemove, value, disabled }: ImageUploadProps) 
       <div>
         <div className='mb-4 flex items-center gap-4'>
           {value.map((url) => {
+            console.log('🚀 ~ {value.map ~ url:', url);
+
             return (
               <div
                 key={url}

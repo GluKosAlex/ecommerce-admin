@@ -18,9 +18,10 @@ import { Icons } from '@/components/icons';
 import { useToast } from '@/components/ui/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { AlertModal } from '@/components/modals/alert-modal';
-import { useOrigin } from '@/hooks/use-origin';
 import ImageUpload from '@/components/ui/image-upload';
-import { getBillboardImage } from '@/app/api/actions/_actions';
+import { uploadBillboardImage } from '@/app/api/actions/_actions';
+
+import { useSelectedImages } from '@/hooks/use-select-image';
 
 const formSchema = z.object({
   label: z.string().min(1, 'Name is required'),
@@ -36,7 +37,8 @@ interface BillboardFormProps {
 export const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => {
   const params = useParams();
   const router = useRouter();
-  const origin = useOrigin();
+
+  const { selectedImages } = useSelectedImages();
 
   const [open, setOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -60,20 +62,8 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => 
 
   const { toast } = useToast();
 
-  // useEffect(() => {
-  //   if (initialData) {
-  //     getBillboardImage(initialData.imageUrl)
-  //       .then((formData) => {
-  //         const blob = new Blob([formData.image.value], { type: formData.image.options.contentType });
-  //         form.setValue('images', [image]);
-  //       })
-  //       .catch((error) => {
-  //         console.error('Error loading billboard image:', error);
-  //       });
-  //   }
-  // }, []);
-
   const onSubmit = async (data: BillboardFormData) => {
+    console.log('🚀 ~ onSubmit ~ data:', data);
     try {
       if (!isDirty) {
         toast({
@@ -82,18 +72,25 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => 
         });
         return;
       }
+
       setIsLoading(true);
 
-      const formData = new FormData();
-      formData.append('image', data.images[0]);
-      formData.append('label', data.label);
+      if (data.imageUrl.startsWith('blob:') && selectedImages) {
+        const formData = new FormData();
+        formData.append('image', selectedImages[0]);
+
+        const storeId = Array.isArray(params.storeId) ? params.storeId[0] : params.storeId; // Get the store ID from the URL
+
+        data.imageUrl = await uploadBillboardImage(formData, storeId); // Upload the new image file and get the new image URL
+        console.log('🚀 ~ onSubmit ~ data.imageUrl:', data.imageUrl);
+      } // If the image is not a blob URL, it's already uploaded and we can use the original URL
 
       if (initialData) {
         // Update existing billboard if initialData is defined
-        await axios.patch(`/api/${params.storeId}/billboards/${params.billboardId}`, formData);
+        await axios.patch(`/api/${params.storeId}/billboards/${params.billboardId}`, data);
       } else {
         // Create new billboard
-        await axios.post(`/api/${params.storeId}/billboards`, formData);
+        await axios.post(`/api/${params.storeId}/billboards`, data);
       }
 
       router.refresh(); // Refresh the page to reflect the changes in the database
@@ -161,11 +158,11 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => 
                 <FormLabel>Background image</FormLabel>
                 <FormControl>
                   <ImageUpload
-                    onChange={(images) => {
-                      field.onChange(images);
+                    onChange={(url) => {
+                      field.onChange(url);
                     }}
                     onRemove={() => {
-                      field.onChange([]);
+                      field.onChange('');
                     }}
                     value={field.value ? [field.value] : []}
                     disabled={isLoading}

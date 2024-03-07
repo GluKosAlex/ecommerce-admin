@@ -7,9 +7,7 @@ import { uploadBillboardImage } from './../../actions/_actions';
 export async function POST(request: Request, { params }: { params: { storeId: string } }) {
   try {
     const session = await auth();
-    const data = await request.formData();
-    const label = data.get('label') as string;
-    const image = data.get('image') as File;
+    const { label, imageUrl } = await request.json();
 
     if (!session || !session.userId) {
       return new NextResponse('Unauthenticated', { status: 401 });
@@ -19,16 +17,8 @@ export async function POST(request: Request, { params }: { params: { storeId: st
       return new NextResponse('Label is required', { status: 400 });
     }
 
-    if (!image) {
+    if (!imageUrl) {
       return new NextResponse('Image is required', { status: 400 });
-    }
-
-    if (image.type !== 'image/jpeg' && image.type !== 'image/png') {
-      return new NextResponse('Invalid image type', { status: 400 });
-    }
-
-    if (image.size > 5 * 1024 * 1024) {
-      return new NextResponse('Image is too large', { status: 400 });
     }
 
     if (!params.storeId) {
@@ -46,12 +36,6 @@ export async function POST(request: Request, { params }: { params: { storeId: st
       return new NextResponse('Unauthorized', { status: 403 });
     } // Check if user has permission to access this store
 
-    const formData = new FormData();
-    formData.append('image', image);
-
-    const imageUrl = await uploadBillboardImage(formData, params.storeId);
-    console.log('🚀 ~ BILLBOARDS_POST ~ imageUrl:', imageUrl);
-
     const billboard = await prismadb.billboard.create({
       data: {
         label,
@@ -67,7 +51,7 @@ export async function POST(request: Request, { params }: { params: { storeId: st
   }
 }
 
-export async function GET(req: Request, { params }: { params: { storeId: string } }) {
+export async function GET(_req: Request, { params }: { params: { storeId: string } }) {
   try {
     if (!params.storeId) {
       return new NextResponse('Store ID is required', { status: 400 });

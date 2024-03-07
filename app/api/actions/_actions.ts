@@ -25,10 +25,19 @@ export const uploadBillboardImage = async (data: FormData, storeId: string) => {
 
   const bytes = await image.arrayBuffer(); // Convert the image to bytes
   const buffer = Buffer.from(bytes); // Convert the bytes to a buffer
-  const path = join(folderPath, `billboard_background_image_${Date.now()}.${image.type.split('/')[1]}`); // Path to the file where the image will be stored
-  await writeFile(path, buffer); // Write the image to the file
+  const path = join(
+    `user_id_${userId}`,
+    'images',
+    storeId,
+    'billboards',
+    `billboard_background_image_${Date.now()}.${image.type.split('/')[1]}`
+  ); // Path to the file where the image will be stored
 
-  return path;
+  await writeFile(join(process.cwd(), 'public', path), buffer); // Write the image to the file
+
+  const imageUrl = new URL(path, 'http://localhost:3000').href; // Get the URL of the image
+
+  return imageUrl;
 };
 
 export const deleteBillboardImage = async (imagePath: string) => {
