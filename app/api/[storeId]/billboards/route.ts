@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/configs/auth';
 
 import prismadb from '@/lib/prismadb';
-import { uploadBillboardImage } from './../../actions/_actions';
 
 export async function POST(request: Request, { params }: { params: { storeId: string } }) {
   try {
