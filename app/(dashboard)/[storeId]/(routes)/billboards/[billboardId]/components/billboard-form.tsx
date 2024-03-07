@@ -94,6 +94,8 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => 
       }
 
       router.refresh(); // Refresh the page to reflect the changes in the database
+      router.push(`/${params.storeId}/billboards`); // Redirect to the billboard list
+
       toast({
         variant: 'default',
         title: toastMessage,
