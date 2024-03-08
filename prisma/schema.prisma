@@ -63,8 +63,8 @@ model Store {
   name      String      @unique
   userId    String
   billboard Billboard[] @relation("StoreToBillboard")
-  createAt  DateTime    @default(now())
-  updateAt  DateTime    @updatedAt
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
 }
 
 model Billboard {
@@ -73,8 +73,8 @@ model Billboard {
   store     Store    @relation("StoreToBillboard", fields: [storeId], references: [id])
   label     String
   imageUrl  String
-  createAt  DateTime @default(now())
-  updateAt  DateTime @updatedAt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@index([storeId])
 }

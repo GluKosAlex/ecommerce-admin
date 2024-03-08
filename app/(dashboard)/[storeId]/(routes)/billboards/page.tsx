@@ -7,7 +7,7 @@ const BillboardsPage = async ({ params }: { params: { storeId: string } }) => {
       storeId: params.storeId,
     },
     orderBy: {
-      createAt: 'desc',
+      createdAt: 'desc',
     }, // sort by createAt in descending order
   });
   return (
