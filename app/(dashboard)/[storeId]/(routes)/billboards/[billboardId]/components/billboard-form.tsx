@@ -121,7 +121,7 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => 
       setIsLoading(true);
       await axios.delete(`/api/${params.storeId}/billboards/${params.billboardId}`);
       router.refresh();
-      router.push('/');
+      router.push(`/${params.storeId}/billboards`);
       toast({
         variant: 'default',
         title: 'Billboard deleted',
@@ -194,7 +194,6 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => 
           </Button>
         </form>
       </Form>
-      <Separator />
     </>
   );
 };

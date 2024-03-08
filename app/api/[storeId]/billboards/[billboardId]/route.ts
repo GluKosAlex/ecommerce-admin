@@ -135,7 +135,6 @@ export async function DELETE(
         imageUrl: true,
       },
     }); // Get the current image URL for the billboard
-    console.log('🚀 ~ currentImageUrl:', currentImageUrl);
 
     if (currentImageUrl?.imageUrl) {
       await deleteBillboardImage(currentImageUrl.imageUrl);
