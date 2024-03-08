@@ -15,6 +15,18 @@ export const uploadBillboardImage = async (data: FormData, storeId: string) => {
 
   const image = data.get('image') as File; // Get the image from the form
 
+  if (!image) {
+    throw new Error('Image is required');
+  }
+
+  if (image.size > 5 * 1024 * 1024) {
+    throw new Error('Image is too large');
+  }
+
+  if (image.type !== 'image/jpeg' && image.type !== 'image/png') {
+    throw new Error('Image must be a JPEG or PNG');
+  }
+
   const folderPath = join(process.cwd(), 'public', `user_id_${userId}`, 'images', storeId, 'billboards'); // Path to the folder where the image will be stored
 
   try {
