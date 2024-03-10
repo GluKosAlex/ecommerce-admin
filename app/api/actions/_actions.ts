@@ -74,7 +74,6 @@ export const getBillboardImage = async (imagePath: string) => {
         },
       },
     };
-    console.log('🚀 ~ getBillboardImage ~ formData:', formData);
     return formData;
   } catch (_error) {
     // Ignore if the image doesn't exist

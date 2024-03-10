@@ -78,8 +78,8 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ initialData, billboa
         await axios.post(`/api/${params.storeId}/categories`, data);
       }
 
-      router.refresh(); // Refresh the page to reflect the changes in the database
       router.push(`/${params.storeId}/categories`); // Redirect to the categories list
+      router.refresh(); // Refresh the page to reflect the changes in the database
 
       toast({
         variant: 'default',
@@ -105,8 +105,10 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ initialData, billboa
     try {
       setIsLoading(true);
       await axios.delete(`/api/${params.storeId}/categories/${params.categoryId}`);
-      router.refresh();
+
       router.push(`/${params.storeId}/categories`);
+      router.refresh();
+
       toast({
         variant: 'default',
         title: 'Category deleted',

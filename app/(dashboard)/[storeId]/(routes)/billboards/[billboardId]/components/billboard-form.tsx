@@ -91,8 +91,8 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => 
         await axios.post(`/api/${params.storeId}/billboards`, data);
       }
 
-      router.refresh(); // Refresh the page to reflect the changes in the database
       router.push(`/${params.storeId}/billboards`); // Redirect to the billboard list
+      router.refresh(); // Refresh the page to reflect the changes in the database
 
       toast({
         variant: 'default',
@@ -118,8 +118,10 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => 
     try {
       setIsLoading(true);
       await axios.delete(`/api/${params.storeId}/billboards/${params.billboardId}`);
-      router.refresh();
+
       router.push(`/${params.storeId}/billboards`);
+      router.refresh();
+
       toast({
         variant: 'default',
         title: 'Billboard deleted',

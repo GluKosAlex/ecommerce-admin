@@ -56,8 +56,6 @@ const ImageUpload = ({ onChange, onRemove, value, disabled }: ImageUploadProps) 
       <div>
         <div className='mb-4 flex items-center gap-4'>
           {value.map((url) => {
-            console.log('🚀 ~ {value.map ~ url:', url);
-
             return (
               <div
                 key={url}
