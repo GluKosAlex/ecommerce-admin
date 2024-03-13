@@ -78,5 +78,5 @@ npm ru dev
 
 ## Author
 
-* **Glushenkov Konstantin** - *Frontend developer* - [Glushenkov Konstantin](https://github.com/glukosalex/)
+**Glushenkov Konstantin** - *Frontend developer* - [Glushenkov Konstantin](https://github.com/glukosalex/)
 
