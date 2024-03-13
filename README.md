@@ -23,24 +23,27 @@
 
 ## About The Project
 
-Key Features:
-
 Our admin dashboard is going to serve as both CMS, Admin and API
-* You will be able to control multiple vendors / stores through this single CMS
-* You will be able to create, update and delete categories!
-* You will be able to create, update and delete products!
-* You will be able to upload multiple images for products, and change them whenever you want!
-* You will be able to create, update and delete filters such as "Color" and "Size", and then match them in the "Product" creation form.
-* You will be able to create, update and delete "Billboards" which are these big texts on top of the page. You will be able to attach them to a single category, or use them standalone
-* You will be able to Search through all categories, products, sizes, colors, billboards with included pagination.
-* You will be able to control which products are "featured" so they show on the homepage!
-* You will be able to see your orders, sales, etc.
-* You will be able to see graphs of your revenue etc.
-* You will be able to authorize with OAuth credentials, Yandex or Google accounts.
+
+You are able to (developed):
+* Control multiple vendors / stores through this single CMS
+* Create, update and delete categories!
+* Create, update and delete products!
+* Upload multiple images for products, and change them whenever you want!
+* Create, update and delete filters such as "Color" and "Size", and then match them in the "Product" creation form.
+* Create, update and delete "Billboards" which are these big texts on top of the page. You will be able to attach them to a single category, or use them standalone
+* Search through all categories, products, sizes, colors, billboards with included pagination.
+
+You will be able to (developing):
+* Control which products are "featured" so they show on the homepage!
+* Orders, sales, etc.
+* See graphs of your revenue etc.
+* Authorize with OAuth credentials, Yandex or Google accounts.
 * Order creation
 
 ## Built With
 * [Next.js](https://nextjs.org/)
+* [NextAuth.js](https://next-auth.js.org/)
 * [shadcn/ui + Tailwind](https://ui.shadcn.com/)
 * [React Hook Form + Zod](https://react-hook-form.com/)
 * [MySQL + Prisma](https://www.prisma.io/)
@@ -73,7 +76,7 @@ npm install
 npm ru dev
 ```
 
-## Authors
+## Author
 
-* **Glushenkov Konstantin** - *Frontend developer* - [Glushenkov Konstantin](https://github.com/glukosalex/) - **
+* **Glushenkov Konstantin** - *Frontend developer* - [Glushenkov Konstantin](https://github.com/glukosalex/)
 
