@@ -19,13 +19,15 @@ import {
 import DropZone from '@/components/ui/drop-zone';
 
 interface ImageUploadProps {
-  onChange: (value: string) => void;
+  onChange: (value: { url: string }[]) => void;
   onRemove: (value: string) => void;
   value: string[];
   disabled?: boolean;
+  maxFiles?: number;
+  multiple?: boolean;
 }
 
-const ImageUpload = ({ onChange, onRemove, value, disabled }: ImageUploadProps) => {
+const ImageUpload = ({ onChange, onRemove, value, disabled, maxFiles, multiple }: ImageUploadProps) => {
   const [isClient, setIsClient] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -40,13 +42,18 @@ const ImageUpload = ({ onChange, onRemove, value, disabled }: ImageUploadProps) 
       if (acceptedFiles?.length > 0) {
         onSelectImages(acceptedFiles);
 
-        onChange(URL.createObjectURL(acceptedFiles[0]));
+        const acceptedFilesUrls = acceptedFiles.map((file) => {
+          return { url: URL.createObjectURL(file) };
+        });
+        // const acceptedFilesUrls = acceptedFiles.map((file) => URL.createObjectURL(file));
+
+        onChange(acceptedFilesUrls);
 
         setIsOpen(false);
       }
 
       if (rejectedFiles?.length > 0) {
-      }
+      } // TODO: Handle rejected files
     },
     [onChange, onSelectImages]
   );
@@ -82,7 +89,7 @@ const ImageUpload = ({ onChange, onRemove, value, disabled }: ImageUploadProps) 
         <DialogContent>
           <DialogHeader>
             <DialogTitle className='pb-4 pt-2'> Upload a background image for your billboard</DialogTitle>
-            <DropZone onDrop={onDrop} />
+            <DropZone multiple={multiple || false} maxFiles={maxFiles || 1} onDrop={onDrop} />
             <DialogDescription className='pt-2'>File should be .jpg or .png up to 5MB</DialogDescription>
           </DialogHeader>
         </DialogContent>

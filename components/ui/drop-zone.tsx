@@ -10,12 +10,10 @@ interface IDropZoneProps extends DropzoneProps {
 const DropZone: React.FC<IDropZoneProps> = ({ onDrop }) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    multiple: false,
     accept: {
       'image/jpeg': ['.jpg', '.jpeg'],
       'image/png': ['.png'],
     },
-    maxFiles: 1,
     maxSize: 5 * 1024 * 1024,
   });
 

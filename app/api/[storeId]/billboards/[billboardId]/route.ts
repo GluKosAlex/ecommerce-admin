@@ -71,7 +71,7 @@ export async function PATCH(
     }); // Get the current image URL for the billboard
 
     if (currentImageUrl?.imageUrl) {
-      await deleteBillboardImage(currentImageUrl.imageUrl);
+      await deleteBillboardImage(currentImageUrl.imageUrl, params.storeId);
     } // Delete the current image file if it exists
 
     const billboard = await prismadb.billboard.updateMany({
@@ -137,7 +137,7 @@ export async function DELETE(
     }); // Get the current image URL for the billboard
 
     if (currentImageUrl?.imageUrl) {
-      await deleteBillboardImage(currentImageUrl.imageUrl);
+      await deleteBillboardImage(currentImageUrl.imageUrl, storeId);
     } // Delete the current image file if it exists
 
     const billboard = await prismadb.billboard.deleteMany({
