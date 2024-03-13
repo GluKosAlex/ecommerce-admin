@@ -54,7 +54,7 @@ To get a local copy up and running follow these simple example steps.
 
 ### Prerequisites
 
-To install this project you need to install [Node.js] (https://nodejs.org/en/download) first
+To install this project you need to install [Node.js](https://nodejs.org/en/download) first
 
 ### Installation
 
