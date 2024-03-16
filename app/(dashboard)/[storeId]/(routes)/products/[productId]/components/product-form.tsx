@@ -28,7 +28,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { AlertModal } from '@/components/modals/alert-modal';
 import ImageUpload from '@/components/ui/image-upload';
-import { uploadProductImages } from '@/app/api/actions/_actions';
+import { deleteProductImages, uploadProductImages } from '@/app/api/actions/_actions';
 
 import { useSelectedImages } from '@/hooks/use-select-image';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -106,9 +106,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData, categorie
 
       setIsLoading(true);
 
+      // Filter out the temporary blob image URLs
       const images: string[] = data.images.map((image) => image.url);
       const addedImages: string[] = images.filter((url) => url.startsWith('blob:'));
 
+      // Create a FormData object with the selected images as files
       if (addedImages && selectedImages) {
         const formData = new FormData();
         selectedImages.forEach((image) => {
@@ -117,8 +119,18 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData, categorie
 
         const storeId = Array.isArray(params.storeId) ? params.storeId[0] : params.storeId; // Get the store ID from the URL
 
+        // Delete images from the server that were removed from the form
+        if (initialData) {
+          const initialImages = initialData.images.map((image) => image.url); // Get the initial image URLs
+          const removedImages = initialImages.filter((url) => !images.includes(url)); // Find the images that were removed
+          if (removedImages) {
+            deleteProductImages(removedImages, storeId); // Delete the removed images from the server
+          }
+        }
+
         const newImagesUrls = await uploadProductImages(formData, storeId); // Upload the new images files and get the new images URLs
 
+        // Replace the temporary blob image URLs with the uploaded new image URLs
         data.images.forEach((image) => {
           if (image.url.startsWith('blob:')) {
             const index = images.indexOf(image.url); // Find the index of the image in the original array
