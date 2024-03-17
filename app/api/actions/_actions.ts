@@ -1,7 +1,6 @@
 'use server';
 
-import { createReadStream } from 'fs';
-import { writeFile, stat, mkdir, access, unlink, readFile } from 'fs/promises';
+import { writeFile, stat, mkdir, access, unlink } from 'fs/promises';
 import path, { join } from 'path';
 
 import { getUserIdFromSession } from '@/utils/data-access-utils';
@@ -27,7 +26,8 @@ export const uploadBillboardImage = async (data: FormData, storeId: string) => {
     throw new Error('Image must be a JPEG or PNG');
   }
 
-  const folderPath = join(process.cwd(), 'public', `user_id_${userId}`, 'images', storeId, 'billboards'); // Path to the folder where the image will be stored
+  // Path to the folder where the image will be stored
+  const folderPath = join(process.cwd(), 'public', `user_id_${userId}`, 'images', storeId, 'billboards');
 
   try {
     await access(folderPath); // Check if the folder exists
@@ -61,6 +61,7 @@ export const deleteBillboardImage = async (imageUrl: string, storeId: string) =>
 
   const fileName = path.basename(imageUrl); // Get the name of the image
 
+  // Path to the folder where the image is stored
   const localPath = join(
     process.cwd(),
     'public',
@@ -69,7 +70,7 @@ export const deleteBillboardImage = async (imageUrl: string, storeId: string) =>
     storeId,
     'billboards',
     fileName
-  ); // Path to the folder where the image is stored
+  );
 
   try {
     await stat(localPath); // Check if the image exists
@@ -86,8 +87,7 @@ export const uploadProductImages = async (data: FormData, storeId: string) => {
     throw new Error('Unauthorized');
   }
 
-  const images = data.get('images') as unknown as File[]; // Get the images from the form
-  console.log('🚀 ~ uploadProductImages ~ images:', images);
+  const images = data.getAll('images') as File[]; // Get the images from the form
 
   if (!images) {
     throw new Error('at least one images is required');
@@ -101,32 +101,65 @@ export const uploadProductImages = async (data: FormData, storeId: string) => {
     throw new Error('All of the images must be JPEG or PNG');
   }
 
-  const folderPath = join(process.cwd(), 'public', `user_id_${userId}`, 'images', storeId, 'billboards'); // Path to the folder where the image will be stored
+  // Path to the folder where the image will be stored
+  const folderPath = join(process.cwd(), 'public', `user_id_${userId}`, 'images', storeId, 'products');
 
   try {
     await access(folderPath); // Check if the folder exists
   } catch (_error) {
     await mkdir(folderPath, { recursive: true }); // Create the folder if it doesn't exist
   }
-  const imagesUrls = await Promise.all(
-    images.map(async (image) => {
-      const bytes = await image.arrayBuffer(); // Convert the image to bytes
-      const buffer = Buffer.from(bytes); // Convert the bytes to a buffer
-      const path = join(
-        `user_id_${userId}`,
-        'images',
-        storeId,
-        'billboards',
-        `billboard_background_image_${Date.now()}.${image.type.split('/')[1]}`
-      ); // Path to the file where the image will be stored
 
-      await writeFile(join(process.cwd(), 'public', path), buffer); // Write the image to the file
+  const imagesUrls: string[] = [];
 
-      const imageUrl = new URL(path, 'http://localhost:3000').href; // Get the URL of the image
+  for (const image of images) {
+    const bytes = await image.arrayBuffer(); // Convert the image to bytes
+    const buffer = Buffer.from(bytes); // Convert the bytes to a buffer
+    const path = join(
+      `user_id_${userId}`,
+      'images',
+      storeId,
+      'products',
+      `product_image_${Date.now()}.${image.type.split('/')[1]}`
+    ); // Path to the file where the image will be stored
 
-      return imageUrl;
-    })
-  );
+    await writeFile(join(process.cwd(), 'public', path), buffer); // Write the image to the file
+
+    imagesUrls.push(new URL(path, 'http://localhost:3000').href); // Get the URL of the image
+  }
 
   return imagesUrls;
+};
+
+export const deleteProductImages = async (imageUrls: string[], storeId: string) => {
+  const userId = await getUserIdFromSession(); // Get the user ID from the session
+
+  if (!userId) {
+    throw new Error('Unauthorized');
+  }
+
+  imageUrls.forEach(async (imageUrl) => {
+    const fileName = path.basename(imageUrl); // Get the name of the image
+    console.log('🚀 ~ imageUrls.forEach ~ fileName:', fileName);
+
+    // Path to the folder where the image is stored
+    const localPath = join(
+      process.cwd(),
+      'public',
+      `user_id_${userId}`,
+      'images',
+      storeId,
+      'products',
+      fileName
+    );
+    console.log('🚀 ~ imageUrls.forEach ~ localPath:', localPath);
+
+    try {
+      await stat(localPath); // Check if the image exists
+      await unlink(localPath); // Delete the image
+    } catch (error) {
+      console.log('🚀 ~ imageUrls.forEach ~ error:', error);
+      // Ignore if the image doesn't exist
+    }
+  });
 };
