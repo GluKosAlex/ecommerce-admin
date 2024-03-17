@@ -14,4 +14,4 @@ export function cn(...inputs: ClassValue[]) {
 export const formatter = new Intl.NumberFormat('ru-RU', {
   style: 'currency',
   currency: 'RUB',
-});
+}); // Intl.NumberFormat is used to format the price as a currency string. Intl is a built-in JavaScript module that provides support for internationalization and localization.
