@@ -93,8 +93,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData, categorie
   const { toast } = useToast();
 
   const onSubmit = async (data: ProductFormData) => {
-    console.log('🚀 ~ onSubmit ~ data:', data);
-
     try {
       if (!isDirty) {
         toast({
@@ -131,14 +129,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData, categorie
         const newImagesUrls = await uploadProductImages(formData, storeId); // Upload the new images files and get the new images URLs
 
         // Replace the temporary blob image URLs with the uploaded new image URLs
-        data.images.forEach((image) => {
+        data.images.forEach((image, i, arr) => {
           if (image.url.startsWith('blob:')) {
-            const index = images.indexOf(image.url); // Find the index of the image in the original array
-            images[index] = newImagesUrls.shift() as string; // Replace the image URL with the new image URL
+            const index = images.indexOf(image.url); // Find the index of the image in the array of image URLs
+            arr[index].url = newImagesUrls.shift() as string; // Replace the image URL with the new image URL
           }
         });
       }
-      console.log('🚀 ~ data.images.forEach ~ data:', data);
 
       if (initialData) {
         // Update existing product if initialData is defined
