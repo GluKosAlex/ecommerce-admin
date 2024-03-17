@@ -57,7 +57,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData, categorie
   const params = useParams();
   const router = useRouter();
 
-  const { selectedImages } = useSelectedImages();
+  const { selectedImages, onSelectImages } = useSelectedImages();
 
   const [open, setOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -107,9 +107,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData, categorie
       // Filter out the temporary blob image URLs
       const images: string[] = data.images.map((image) => image.url);
       const addedImages: string[] = images.filter((url) => url.startsWith('blob:'));
+      console.log('🚀 ~ onSubmit ~ addedImages:', addedImages);
+      console.log('🚀 ~ onSubmit ~ selectedImages:', selectedImages);
 
-      // Create a FormData object with the selected images as files
+      // If there are added images, upload them and get the new image URLs
       if (addedImages && selectedImages) {
+        // Create a FormData object with the selected images as array of files
         const formData = new FormData();
         selectedImages.forEach((image) => {
           formData.append('images', image);
@@ -138,15 +141,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData, categorie
       }
 
       if (initialData) {
-        // Update existing product if initialData is defined
+        // Update existing product if initialData is defined (edit mode)
         await axios.patch(`/api/${params.storeId}/products/${params.productId}`, data);
       } else {
-        // Create new product
+        // Create new product if initialData is not defined (create mode)
         await axios.post(`/api/${params.storeId}/products`, data);
       }
 
       router.push(`/${params.storeId}/products`); // Redirect to the product list
       router.refresh(); // Refresh the page to reflect the changes in the database
+      onSelectImages([]); // Clear the selected images state
 
       toast({
         variant: 'default',
