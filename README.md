@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+<br/>
+<p align="center">
+  <h3 align="center">Jou-b-Jou admin</h3>
+
+  <p align="center">
+    Admin panel for Jou-b-Jou e-commerce web app
+    <br/>
+    <br/>
+    <a href="https://github.com/glukosalex/Breadcrumbsecommerce-admin/issues">Report Bug</a>
+    .
+    <a href="https://github.com/glukosalex/Breadcrumbsecommerce-admin/issues">Request Feature</a>
+  </p>
+</p>
+
+## Table Of Contents
+
+* [About the Project](#about-the-project)
+* [Built With](#built-with)
+* [Getting Started](#getting-started)
+  * [Prerequisites](#prerequisites)
+  * [Installation](#installation)
+* [Authors](#authors)
+
+## About The Project
+
+Our admin dashboard is going to serve as both CMS, Admin and API
+
+You are able to (developed):
+* Control multiple vendors / stores through this single CMS
+* Create, update and delete categories!
+* Create, update and delete products!
+* Upload multiple images for products, and change them whenever you want!
+* Create, update and delete filters such as "Color" and "Size", and then match them in the "Product" creation form.
+* Create, update and delete "Billboards" which are these big texts on top of the page. You will be able to attach them to a single category, or use them standalone
+* Search through all categories, products, sizes, colors, billboards with included pagination.
+
+You will be able to (developing):
+* Control which products are "featured" so they show on the homepage!
+* Orders, sales, etc.
+* See graphs of your revenue etc.
+* Authorize with OAuth credentials, Yandex or Google accounts.
+* Order creation
+
+## Built With
+* [Next.js](https://nextjs.org/)
+* [NextAuth.js](https://next-auth.js.org/)
+* [shadcn/ui + Tailwind](https://ui.shadcn.com/)
+* [React Hook Form + Zod](https://react-hook-form.com/)
+* [MySQL + Prisma](https://www.prisma.io/)
 
 ## Getting Started
 
-First, run the development server:
+To get a local copy up and running follow these simple example steps.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### Prerequisites
+
+To install this project you need to install [Node.js](https://nodejs.org/en/download) first
+
+### Installation
+
+1. Clone the repo
+
+```sh
+git clone https://github.com/GluKosAlex/ecommerce-admin.git
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install NPM packages
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```sh
+npm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+3. Run the project for develop
 
-## Learn More
+```sh
+npm ru dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Author
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Glushenkov Konstantin** - *Frontend developer* - [Glushenkov Konstantin](https://github.com/glukosalex/)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
