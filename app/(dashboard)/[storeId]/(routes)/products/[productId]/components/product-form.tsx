@@ -107,8 +107,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData, categorie
       // Filter out the temporary blob image URLs
       const images: string[] = data.images.map((image) => image.url);
       const addedImages: string[] = images.filter((url) => url.startsWith('blob:'));
-      console.log('🚀 ~ onSubmit ~ addedImages:', addedImages);
-      console.log('🚀 ~ onSubmit ~ selectedImages:', selectedImages);
 
       // If there are added images, upload them and get the new image URLs
       if (addedImages && selectedImages) {
@@ -118,7 +116,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData, categorie
           formData.append('images', image);
         });
 
-        const storeId = Array.isArray(params.storeId) ? params.storeId[0] : params.storeId; // Get the store ID from the URL
+        // Get the store ID from the URL
+        const storeId = Array.isArray(params.storeId) ? params.storeId[0] : params.storeId;
 
         // Delete images from the server that were removed from the form
         if (initialData) {
@@ -132,7 +131,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData, categorie
         const newImagesUrls = await uploadProductImages(formData, storeId); // Upload the new images files and get the new images URLs
 
         // Replace the temporary blob image URLs with the uploaded new image URLs
-        data.images.forEach((image, i, arr) => {
+        data.images.forEach((image, _i, arr) => {
           if (image.url.startsWith('blob:')) {
             const index = images.indexOf(image.url); // Find the index of the image in the array of image URLs
             arr[index].url = newImagesUrls.shift() as string; // Replace the image URL with the new image URL

@@ -61,19 +61,6 @@ export async function PATCH(
       return new NextResponse('Unauthorized', { status: 403 });
     } // Check if user has permission to access this store
 
-    const currentImageUrl = await prismadb.billboard.findUnique({
-      where: {
-        id: params.billboardId,
-      },
-      select: {
-        imageUrl: true,
-      },
-    }); // Get the current image URL for the billboard
-
-    if (currentImageUrl?.imageUrl) {
-      await deleteBillboardImage(currentImageUrl.imageUrl, params.storeId);
-    } // Delete the current image file if it exists
-
     const billboard = await prismadb.billboard.updateMany({
       where: {
         id: params.billboardId,

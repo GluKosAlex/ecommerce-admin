@@ -19,7 +19,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { AlertModal } from '@/components/modals/alert-modal';
 import ImageUpload from '@/components/ui/image-upload';
-import { uploadBillboardImage } from '@/app/api/actions/_actions';
+import { deleteBillboardImage, uploadBillboardImage } from '@/app/api/actions/_actions';
 
 import { useSelectedImages } from '@/hooks/use-select-image';
 
@@ -74,20 +74,28 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => 
 
       setIsLoading(true);
 
+      // If the image is not a blob URL, it's already uploaded and we can use the original URL
       if (data.imageUrl.startsWith('blob:') && selectedImages) {
         const formData = new FormData();
         formData.append('image', selectedImages[0]);
 
-        const storeId = Array.isArray(params.storeId) ? params.storeId[0] : params.storeId; // Get the store ID from the URL
+        // Get the store ID from the URL
+        const storeId = Array.isArray(params.storeId) ? params.storeId[0] : params.storeId;
 
-        data.imageUrl = await uploadBillboardImage(formData, storeId); // Upload the new image file and get the new image URL
-      } // If the image is not a blob URL, it's already uploaded and we can use the original URL
+        // Upload the new image file and get the new image URL
+        data.imageUrl = await uploadBillboardImage(formData, storeId);
+
+        // Delete the old image file from the server if initialData is defined (edit mode)
+        if (initialData) {
+          deleteBillboardImage(initialData.imageUrl, storeId);
+        }
+      }
 
       if (initialData) {
-        // Update existing billboard if initialData is defined
+        // Update existing billboard if initialData is defined (edit mode)
         await axios.patch(`/api/${params.storeId}/billboards/${params.billboardId}`, data);
       } else {
-        // Create new billboard
+        // Create new billboard if initialData is not defined (create mode)
         await axios.post(`/api/${params.storeId}/billboards`, data);
       }
 

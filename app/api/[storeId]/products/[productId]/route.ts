@@ -88,16 +88,6 @@ export async function PATCH(
       return new NextResponse('Unauthorized', { status: 403 });
     }
 
-    // Get the current images URLs for the product
-    const currentImageUrls = await prismadb.product.findUnique({
-      where: {
-        id: params.productId,
-      },
-      select: {
-        images: true,
-      },
-    });
-
     // Update the product
     await prismadb.product.update({
       where: {

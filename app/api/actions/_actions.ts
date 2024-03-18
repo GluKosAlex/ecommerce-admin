@@ -140,7 +140,6 @@ export const deleteProductImages = async (imageUrls: string[], storeId: string) 
 
   imageUrls.forEach(async (imageUrl) => {
     const fileName = path.basename(imageUrl); // Get the name of the image
-    console.log('🚀 ~ imageUrls.forEach ~ fileName:', fileName);
 
     // Path to the folder where the image is stored
     const localPath = join(
@@ -152,13 +151,11 @@ export const deleteProductImages = async (imageUrls: string[], storeId: string) 
       'products',
       fileName
     );
-    console.log('🚀 ~ imageUrls.forEach ~ localPath:', localPath);
 
     try {
       await stat(localPath); // Check if the image exists
       await unlink(localPath); // Delete the image
     } catch (error) {
-      console.log('🚀 ~ imageUrls.forEach ~ error:', error);
       // Ignore if the image doesn't exist
     }
   });
