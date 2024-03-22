@@ -16,6 +16,9 @@ export async function GET(_request: Request, { params }: { params: { categoryId:
       where: {
         id: categoryId,
       },
+      include: {
+        billboard: true,
+      },
     }); // Get the category by ID
 
     return NextResponse.json(category);
